@@ -5,6 +5,8 @@ import 'package:flutter_application_1/tast/user.dart';
 import 'package:flutter_application_1/tast/forgetPassword.dart';
 import 'package:flutter_application_1/tast/home.dart';
 
+import '../model/server_user.dart';
+
 final _formKey = GlobalKey<FormState>();
 
 class LoginScreen extends StatefulWidget {
@@ -14,7 +16,6 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-
 class _LoginScreenState extends State<LoginScreen> {
   bool _secureText = true;
   final _nationalIDController = TextEditingController();
@@ -23,35 +24,76 @@ class _LoginScreenState extends State<LoginScreen> {
   void openHomeScreen() {
     Navigator.of(context).pushReplacementNamed('HomeScreen');
   }
+  void login() {
+    String nationalId = _nationalIDController.text;
+    String password = _passwordController.text;
 
-  LOGIN_TABLE() {
-    Services.createTable().then((result) {
-      if ('success' == result) {
-        print('success to create table');
-      } else {
-        print('failed to create table');
-      }
-    });
-  }
+    if (_formKey.currentState!.validate()) {
+      ServerUserAPI.checkUser(nationalId, password).then((result) {
+        // Extract authentication result and user type from the result map
+        bool isAuthenticated = result['authenticated'];
+        String userType = result['user_type'];
 
-  void insertUserCredentials() {
-    Services.insertUserCredentials(
-      _nationalIDController.text,
-      _passwordController.text,
-    ).then((result) {
-      if (result == 'success') {
-        print('User credentials inserted successfully');
-      } else {
-        print('Failed to insert user credentials');
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _passwordController.dispose();
-    _nationalIDController.dispose();
+        if (isAuthenticated) {
+          if (userType == "Worker") {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Login Status'),
+                  content: const Text('you are worker'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                );
+              },
+            );
+          } else {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Login Status'),
+                  content: const Text('you are user'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
+        } else {
+          // Show login failed dialog
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Login Status'),
+                content: const Text('Login failed'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      });
+    }
   }
 
   @override
@@ -175,7 +217,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       MaterialButton(
                         onPressed: () {
                           Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => ForgetPassword()));
+                              builder: (context) => ForgetPassword()));
                         },
                         child: const Text('Forget Password ?'),
                       )
@@ -189,13 +231,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         Container(
                           child: MaterialButton(
-                            onPressed: () async {
-                              if (_formKey.currentState!.validate()) {
-                                LOGIN_TABLE();
-                                insertUserCredentials();
-                                Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => const HomeScreen()));
-                              }
+                            onPressed: () {
+                              login();
                             },
                             padding: const EdgeInsets.symmetric(vertical: 15),
                             minWidth: 150,
@@ -210,7 +247,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: MaterialButton(
                             onPressed: () {
                               Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const user()));
+                                  builder: (context) => const user()));
                             },
                             padding: const EdgeInsets.symmetric(vertical: 15),
                             minWidth: 150,

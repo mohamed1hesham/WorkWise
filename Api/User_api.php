@@ -1,52 +1,47 @@
 <?php
-$servername = "localhost";
-$username = "id21923587_users";
-$password = "123Mm@#8";
-$dbname = "id21923587_user_database";
-$table = "users"; // اسم الجدول الذي ترغب في إنشائه
 
-// إنشاء اتصال
-$conn = new mysqli($servername, $username, $password, $dbname);
+header("Access-Control-Allow-Origin: *");
 
-// التحقق من الاتصال
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'];
 
-// إذا كانت الفعل هو إنشاء الجدول
-if (isset($_POST["action"]) && $_POST["action"] == "CREATE_TABLE_LOGIN") {
-    $sql = "CREATE TABLE IF NOT EXISTS $table (
-        national_id VARCHAR(14) PRIMARY KEY, -- تعديل الحقل ليكون المفتاح الأساسي
-        first_name VARCHAR(30) NOT NULL,
-        last_name VARCHAR(30) NOT NULL,
-        country VARCHAR(50) NOT NULL,
-        city VARCHAR(50) NOT NULL,
-        id_number VARCHAR(11) NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        job VARCHAR(255) NOT NULL, -- تمت إضافة الحقل هنا
-        user_type VARCHAR(20) NOT NULL -- إضافة الحقل هنا
-    )";
-
-    if ($conn->query($sql) === TRUE) {
-        echo "Table created successfully";
-    } else {
-        echo "Error creating table: " . $conn->error;
+    switch ($action) {
+        case 'INSERT_USER':
+            insertUser();
+            break;
+        case 'CHECK_USER':
+            checkUser();
+            break;
+        default:
+            echo "Invalid action";
+            break;
     }
 }
 
-// إذا كانت الفعل هو إدراج بيانات مستخدم جديد
-if (isset($_POST["action"]) && $_POST["action"] == "INSERT_USER") {
+function insertUser() {
+    $servername = "localhost";
+    $username = "id21923587_users";
+    $password = "123Mm@#8";
+    $dbname = "id21923587_user_database";
+    $table = "users";
+
+    $conn = new mysqli($servername, $username, $password, $dbname);
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
     $firstName = $_POST["first_name"];
     $lastName = $_POST["last_name"];
     $country = $_POST["country"];
     $city = $_POST["city"];
     $idNumber = $_POST["id_number"];
-    $nationalId = $_POST["national_id"]; // استقبال الرقم القومي الجديد
+    $nationalId = $_POST["national_id"];
     $password = $_POST["password"];
-    $job = $_POST["job"]; // استقبال الوظيفة الجديدة
-    $userType = $_POST["user_type"]; // استقبال نوع المستخدم الجديد
-    
-    $sql = "INSERT INTO $table (national_id, first_name, last_name, country, city, id_number, password, job, user_type) -- تعديل الترتيب لمطابقة ترتيب الحقول في الجدول
+    $job = $_POST["job"];
+    $userType = $_POST["user_type"];
+
+    $sql = "INSERT INTO $table (national_id, first_name, last_name, country, city, id_number, password, job, user_type)
             VALUES ('$nationalId', '$firstName', '$lastName', '$country', '$city', '$idNumber', '$password', '$job', '$userType')";
 
     if ($conn->query($sql) === TRUE) {
@@ -54,8 +49,38 @@ if (isset($_POST["action"]) && $_POST["action"] == "INSERT_USER") {
     } else {
         echo "Error inserting user: " . $conn->error;
     }
+
+    $conn->close();
 }
 
-// إغلاق الاتصال
-$conn->close();
+function checkUser() {
+    $servername = "localhost";
+    $username = "id21923587_users";
+    $password = "123Mm@#8";
+    $dbname = "id21923587_user_database";
+    $table = "users";
+
+    $conn = new mysqli($servername, $username, $password, $dbname);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+    $nationalId = $_POST["national_id"];
+    $password = $_POST["password"];
+    $sql = "SELECT * FROM $table WHERE national_id='$nationalId' AND password='$password'";
+    $result = $conn->query($sql);
+
+    if ($result->num_rows > 0) {
+        // User exists, fetch user type
+        $row = $result->fetch_assoc();
+        $userType = $row["user_type"];
+
+        // Return success and user type as JSON response
+        echo json_encode(array("status" => "success", "user_type" => $userType));
+    } else {
+        // User not found or invalid credentials
+        echo json_encode(array("status" => "failure"));
+    }
+    $conn->close();
+}
+
 ?>

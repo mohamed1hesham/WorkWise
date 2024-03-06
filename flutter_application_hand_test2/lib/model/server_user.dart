@@ -38,7 +38,7 @@ static Future<String> insertUser(
     }
   }
 
-  static Future<String> checkUser(String nationalId,String password) async{
+  static Future<String> checkUser(String nationalId,String password,String userType) async{
      var map = {
         'national_id': nationalId,
         'password': password,};

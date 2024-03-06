@@ -1,9 +1,12 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class ServerUserAPI {
   static const String API_URL = 'https://handworke.000webhostapp.com/Api_users/User_api.php';
   static const String INSERT_USER_ACTION = 'INSERT_USER';
-
+  static const String CHECK_USER_ACTION = 'CHECK_USER';
 static Future<String> insertUser(
       String firstName,
       String lastName,
@@ -38,18 +41,29 @@ static Future<String> insertUser(
     }
   }
 
-  static Future<String> checkUser(String nationalId,String password,String userType) async{
-     var map = {
+  static Future<Map<String, dynamic>> checkUser(String nationalId, String password) async {
+    try {
+      var map = {
+        'action': CHECK_USER_ACTION,
         'national_id': nationalId,
-        'password': password,};
+        'password': password,
+      };
       final response = await http.post(Uri.parse(API_URL), body: map);
-    if (response.statusCode == 200) {
-      
-       return 'login succesfully';
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = json.decode(response.body);
+        bool isAuthenticated = data['status'] == 'success';
+        String userType = data['user_type'];
+        return {'authenticated': isAuthenticated, 'user_type': userType};
       } else {
-        return 'Error: ${response.reasonPhrase}';
+        return {'authenticated': false, 'user_type': ''};
       }
-      
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error: $e');
+      }
+      return {'authenticated': false, 'user_type': ''};
+    }
   }
+
 
 }

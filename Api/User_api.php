@@ -72,6 +72,7 @@ function checkUser() {
     if ($result->num_rows > 0) {
         // User exists, fetch user type
         $row = $result->fetch_assoc();
+
         $userType = $row["user_type"];
 
         // Return success and user type as JSON response

@@ -24,6 +24,9 @@ class _LoginScreenState extends State<LoginScreen> {
   void openHomeScreen() {
     Navigator.of(context).pushReplacementNamed('HomeScreen');
   }
+  void check(){
+
+  }
   void login() {
     String nationalId = _nationalIDController.text;
     String password = _passwordController.text;

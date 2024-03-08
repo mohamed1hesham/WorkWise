@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_application_1/model/server.dart';
 import 'package:flutter_application_1/tast/user.dart';
 import 'package:flutter_application_1/tast/forgetPassword.dart';
 import 'package:flutter_application_1/tast/home.dart';

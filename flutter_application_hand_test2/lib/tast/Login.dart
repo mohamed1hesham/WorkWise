@@ -26,62 +26,42 @@ class _LoginScreenState extends State<LoginScreen> {
   void check(){
 
   }
-  void login() {
-    String nationalId = _nationalIDController.text;
-    String password = _passwordController.text;
+void login() {
+  String nationalId = _nationalIDController.text;
+  String password = _passwordController.text;
 
-    if (_formKey.currentState!.validate()) {
-      ServerUserAPI.checkUser(nationalId, password).then((result) {
-        // Extract authentication result and user type from the result map
-        bool isAuthenticated = result['authenticated'];
-        String userType = result['user_type'];
+  if (_formKey.currentState!.validate()) {
+    ServerUserAPI.checkUser(nationalId, password).then((result) {
+      // Extract authentication result and user type from the result map
+      bool isAuthenticated = result['authenticated'];
+      String userType = result['user_type'];
 
-        if (isAuthenticated) {
-          if (userType == "Worker") {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text('Login Status'),
-                  content: const Text('you are worker'),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text('OK'),
-                    ),
-                  ],
-                );
-              },
-            );
-          } else {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text('Login Status'),
-                  content: const Text('you are user'),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text('OK'),
-                    ),
-                  ],
-                );
-              },
-            );
-          }
-        } else {
-          // Show login failed dialog
+      if (isAuthenticated) {
+        if (userType == "Worker") {
           showDialog(
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
                 title: const Text('Login Status'),
-                content: const Text('Login failed'),
+                content: const Text('you are worker'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pushReplacementNamed('HomeScreen');
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Login Status'),
+                content: const Text('you are user'),
                 actions: [
                   TextButton(
                     onPressed: () {
@@ -94,9 +74,30 @@ class _LoginScreenState extends State<LoginScreen> {
             },
           );
         }
-      });
-    }
+      } else {
+        // Show login failed dialog
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Login Status'),
+              content: const Text('Login failed'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    });
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

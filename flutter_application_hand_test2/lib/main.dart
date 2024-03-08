@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       home: const LoginScreen(),
       initialRoute: 'SigninScreen', 
       routes: {
-        'Homescreen': (context) => const HomeScreen(),
+        'HomeScreen': (context) => const HomeScreen(), // تغيير اسم المسار إلى "HomeScreen"
         'forgetPassword': (context) =>  ForgetPassword(),
         'user': (context) =>  const user(),
         'sendcode': (context) => Send (),
@@ -31,3 +31,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+

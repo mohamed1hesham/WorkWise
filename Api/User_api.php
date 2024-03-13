@@ -12,9 +12,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'CHECK_USER':
             checkUser();
             break;
-        default:
-            echo "Invalid action";
+        case 'CHECK_PHONE_NUMBER':
+            checkPhoneNumber();
             break;
+        default:
+            echo json_encode(array("status" => "failure", "error" => "Invalid action"));
+            break;        
     }
 }
 
@@ -29,6 +32,30 @@ function insertUser() {
 
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
+    }
+    $createTableQuery = "CREATE TABLE IF NOT EXISTS $table (
+        national_id VARCHAR(30) PRIMARY KEY NOT NULL,
+        first_name VARCHAR(30) NOT NULL,
+        last_name VARCHAR(30) NOT NULL,
+        country VARCHAR(50) NOT NULL,
+        city VARCHAR(50),
+        id_number VARCHAR(30),
+        password VARCHAR(255) NOT NULL,
+        job VARCHAR(100),
+        user_type VARCHAR(50) NOT NULL
+    )";
+
+    if ($conn->query($createTableQuery) !== TRUE) {
+        echo "Error creating table: " . $conn->error;
+    }
+
+    // Check if phone number already exists
+    $phoneNumber = $_POST["phone_number"];
+    $existingNationalId = checkPhoneNumber($phoneNumber);
+
+    if ($existingNationalId !== null) {
+        echo "Phone number already exists for user with national ID: $existingNationalId";
+        return;
     }
 
     $firstName = $_POST["first_name"];
@@ -81,6 +108,42 @@ function checkUser() {
         // User not found or invalid credentials
         echo json_encode(array("status" => "failure"));
     }
+    $conn->close();
+}
+
+function checkPhoneNumber() {
+    $servername = "localhost";
+    $username = "id21923587_users";
+    $password = "123Mm@#8";
+    $dbname = "id21923587_user_database";
+    $table = "users";
+
+    $conn = new mysqli($servername, $username, $password, $dbname);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    $idNumber = $_POST["id_number"]; 
+    $nationalId = $_POST["national_id"];
+    $newPassword = $_POST["new_password"]; // استقبال المعامل newPassword
+
+    $sql = "SELECT * FROM $table WHERE id_number='$idNumber' AND national_id='$nationalId' "; 
+    $result = $conn->query($sql);
+
+    if ($result->num_rows > 0) {
+        // رقم الهاتف موجود
+        // تحديث حقل كلمة المرور
+        $updateSql = "UPDATE $table SET password='$newPassword' WHERE id_number='$idNumber' AND national_id='$nationalId'";
+        if ($conn->query($updateSql) === TRUE) {
+            echo json_encode(array("status" => "success", "message" => "Password updated successfully"));
+        } else {
+            echo json_encode(array("status" => "failure", "error" => "Error updating password: " . $conn->error));
+        }
+    } else {
+        // رقم الهاتف غير موجود
+        echo json_encode(array("status" => "failure", "error" => "Phone number not found"));
+    }
+
     $conn->close();
 }
 

@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
@@ -7,16 +6,19 @@ class ServerUserAPI {
   static const String API_URL = 'https://handworke.000webhostapp.com/Api_users/User_api.php';
   static const String INSERT_USER_ACTION = 'INSERT_USER';
   static const String CHECK_USER_ACTION = 'CHECK_USER';
-static Future<String> insertUser(
-      String firstName,
-      String lastName,
-      String country,
-      String city,
-      String idNumber,
-      String nationalId,
-      String password,
-      String userType, // تمت إضافة المعامل هنا
-      String job) async {
+  static const String CHECK_PHONE_NUMBER_ACTION = 'CHECK_PHONE_NUMBER';
+
+  static Future<String> insertUser(
+    String firstName,
+    String lastName,
+    String country,
+    String city,
+    String idNumber,
+    String nationalId,
+    String password,
+    String userType,
+    String job,
+  ) async {
     try {
       var map = {
         'action': INSERT_USER_ACTION,
@@ -27,8 +29,8 @@ static Future<String> insertUser(
         'id_number': idNumber,
         'national_id': nationalId,
         'password': password,
-        'user_type': userType, // تمت إضافة تعيين نوع المستخدم هنا
-        'job': job
+        'user_type': userType,
+        'job': job,
       };
       final response = await http.post(Uri.parse(API_URL), body: map);
       if (response.statusCode == 200) {
@@ -65,6 +67,31 @@ static Future<String> insertUser(
     }
   }
 
-
+static Future<Map<String, dynamic>> checkPhoneNumber(String idNumber, String nationalId, String newPassword) async {
+  try {
+    var map = {
+      'action': CHECK_PHONE_NUMBER_ACTION,
+      'id_number': idNumber,
+      'national_id': nationalId,
+      'new_password': newPassword, // تغيير اسم المعامل إلى newPassword
+    };
+    final response = await http.post(Uri.parse(API_URL), body: map);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = json.decode(response.body);
+      if (data['status'] == 'success') {
+        return {'status': 'success'};
+      } else {
+        return {'status': 'failed'};
+      }
+    } else {
+      return {'status': 'failed'};
+    }
+  } catch (e) {
+    if (kDebugMode) {
+      print('Error: $e');
+    }
+    return {'status': 'error'};
+  }
+}
 
 }

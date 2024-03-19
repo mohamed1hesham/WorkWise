@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_application_1/model/server_user.dart';
 import 'package:flutter_application_1/tast/forgetPassword.dart';
+
+void main() {
+  runApp(SearchPage());
+}
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key});
@@ -26,6 +32,9 @@ class _SearchPageState extends State<SearchPage> {
   ];
   List<String> _filteredData = [];
 
+  final TextEditingController _nationalIdController = TextEditingController();
+  final TextEditingController _idNumberController = TextEditingController();
+
   void _onSearchTextChanged(String value) {
     setState(() {
       _searchText = value;
@@ -33,6 +42,147 @@ class _SearchPageState extends State<SearchPage> {
           _data.where((item) => item.contains(_searchText)).toList();
     });
   }
+
+  void _getUserInfo() async {
+    String nationalId = _nationalIdController.text;
+    String password = _idNumberController.text;
+
+    
+    Map<String, dynamic> userInfo = await ServerUserAPI.getUserInfo(nationalId, password);
+
+    if (userInfo['status'] == 'success') {
+      
+showDialog(
+  context: context,
+  barrierDismissible: false,
+  builder: (BuildContext context) {
+    return Dialog(
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            IconButton(
+              icon: Icon(Icons.close),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              alignment: Alignment.topRight,
+            ),
+            Text(
+              "User Information",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 10),
+            ListTile(
+              title: Text("National ID"),
+              subtitle: Text("${userInfo['user_info']['national_id']}"),
+            ),
+            ListTile(
+              title: Text("First Name"),
+              subtitle: Text("${userInfo['user_info']['first_name']}"),
+            ),
+            ListTile(
+              title: Text("Last Name"),
+              subtitle: Text("${userInfo['user_info']['last_name']}"),
+            ),
+            ListTile(
+              title: Text("Country"),
+              subtitle: Text("${userInfo['user_info']['country']}"),
+            ),
+            ListTile(
+              title: Text("City"),
+              subtitle: Text("${userInfo['user_info']['city']}"),
+            ),
+            ListTile(
+              title: Text("ID Number"),
+              subtitle: Text("${userInfo['user_info']['id_number']}"),
+            ),
+            ListTile(
+              title: Text("User Type"),
+              subtitle: Text("${userInfo['user_info']['user_type']}"),
+            ),
+          ],
+        ),
+      ),
+    );
+  },
+);
+
+    } else {
+      
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Error"),
+            content: Text("Failed to retrieve user information"),
+          );
+        },
+      );
+    }
+  }
+
+  void _contactUs() {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0), 
+        ),
+        child: SizedBox( 
+          width: 250, 
+          height: 200, 
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'To send complaints, inquiries, or any other issues related to our application, you can contact us via email:',
+                  style: TextStyle(fontSize: 16),
+                ),
+                SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: 'handdworkk845@gmail.com'));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Email copied')));
+                  },
+                  child: Text(
+                    'handdworkk845@gmail.com',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.center,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Close'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +196,7 @@ class _SearchPageState extends State<SearchPage> {
             iconSize: 25,
             icon: const Icon(Icons.search),
             onPressed: () {
-              // Navigate to search screen when search icon is pressed
+              
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const SearchPage()),
@@ -81,19 +231,50 @@ class _SearchPageState extends State<SearchPage> {
                     builder: (BuildContext context) {
                       return AlertDialog(
                         title: Text("User Information"),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Name: John Doe"), // استبدل هذا بالاسم الحقيقي للمستخدم
-                            Text("National ID: 1234567890"), // استبدل هذا بالـ national ID الحقيقي للمستخدم
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => ForgetPassword()));
-                              },
-                              child: Text("Change Password"),
-                            ),
-                          ],
+                        content: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TextField(
+                                controller: _nationalIdController,
+                                maxLength: 14,
+                                decoration: InputDecoration(
+                                  labelText: "National ID",
+                                ),
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  LengthLimitingTextInputFormatter(14),
+                                ],
+                              ),
+                              SizedBox(height: 20), 
+                              TextField(
+                                controller: _idNumberController,
+                                maxLength: 11,
+                                decoration: InputDecoration(
+                                  labelText: "Phone Number",
+                                ),
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  LengthLimitingTextInputFormatter(14),
+                                ],
+                              ),
+                              SizedBox(height: 20), 
+                              Align(
+                                alignment: Alignment.center,
+                                child: TextButton(
+                                  onPressed: _getUserInfo, 
+                                  child: Text("OK"),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => ForgetPassword()));
+                                },
+                                child: Text("Change Password"),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },
@@ -102,10 +283,7 @@ class _SearchPageState extends State<SearchPage> {
               ),
               ListTile(
                 title: const Text("About"),
-                leading: const Icon(Icons.help),
-                onTap: () {
-                  // Handle about tap
-                },
+                onTap: _contactUs,
               ),
               ListTile(
                 title: GestureDetector(

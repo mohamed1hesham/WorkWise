@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/model/server_user.dart';
+import 'package:flutter_application_1/tast/Login.dart';
 import 'package:http/http.dart' as http;
 
 class user extends StatefulWidget {
@@ -10,6 +11,7 @@ class user extends StatefulWidget {
 }
 
 class _userState extends State<user> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _secureText = true;
   bool _secureTextConfirm = true;
   bool _nationalIdExists = false;
@@ -23,7 +25,7 @@ class _userState extends State<user> {
   final _confirmPasswordController = TextEditingController();
   String _userType = 'User';
   final _jobController = TextEditingController();
-  final _formKey = GlobalKey<FormState>(); // Unique GlobalKey for the form
+  
 
   @override
   void initState() {
@@ -121,7 +123,7 @@ class _userState extends State<user> {
         child: Center(
           child: SingleChildScrollView(
             child: Form(
-              key: _formKey, // Unique GlobalKey for the form
+              key: _formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -180,44 +182,43 @@ class _userState extends State<user> {
                     ),
                   ),
                   SizedBox(height: 15),
-Padding(
-  padding: const EdgeInsets.symmetric(horizontal: 15),
-  child: DropdownButtonFormField<String>(
-    value: _countryController,
-    decoration: InputDecoration(
-      border: OutlineInputBorder(),
-      focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.greenAccent),
-        borderRadius: BorderRadius.circular(13),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.brown),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      labelText: "Country",
-      labelStyle: TextStyle(color: Colors.black),
-    ),
-    items: <String>[
-      'Egypt',
-      'Saudi Arabia',
-      'United Arab Emirates',
-      'Iraq',
-      'Jordan',
-      // يمكنك الاستمرار في إضافة المزيد من الدول هنا بنفس التسلسل
-    ].map<DropdownMenuItem<String>>((String value) {
-      return DropdownMenuItem<String>(
-        value: value,
-        child: Text(value),
-      );
-    }).toList(),
-    onChanged: (String? newValue) {
-      setState(() {
-        _countryController = newValue!;
-      });
-    },
-  ),
-),
-
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: DropdownButtonFormField<String>(
+                      value: _countryController,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.greenAccent),
+                          borderRadius: BorderRadius.circular(13),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.brown),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        labelText: "Country",
+                        labelStyle: TextStyle(color: Colors.black),
+                      ),
+                      items: <String>[
+                        'Egypt',
+                        'Saudi Arabia',
+                        'United Arab Emirates',
+                        'Iraq',
+                        'Jordan',
+                        
+                      ].map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _countryController = newValue!;
+                        });
+                      },
+                    ),
+                  ),
                   SizedBox(height: 15),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -263,13 +264,13 @@ Padding(
                           borderSide: BorderSide(color: Colors.brown),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        suffixIcon: Icon(Icons.phone_android_rounded),
+                        suffixIcon: Icon(Icons.perm_identity_rounded),
                         labelText: "Phone Number",
                         labelStyle: TextStyle(color: Colors.black),
                       ),
                       validator: (value) {
                         if (value!.isEmpty) {
-                          return 'Please enter your ID number';
+                          return 'Please enter your phone number';
                         }
                         return null;
                       },
@@ -292,14 +293,13 @@ Padding(
                           borderSide: BorderSide(color: Colors.brown),
                           borderRadius: BorderRadius.circular(10),
                         ),
+                        suffixIcon: Icon(Icons.perm_identity_rounded),
                         labelText: "National ID",
                         labelStyle: TextStyle(color: Colors.black),
                       ),
                       validator: (value) {
                         if (value!.isEmpty) {
                           return 'Please enter your national ID';
-                        } else if (_nationalIdExists) {
-                          return 'This national ID already exists';
                         }
                         return null;
                       },
@@ -310,8 +310,8 @@ Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: TextFormField(
                       controller: _passwordController,
-                      keyboardType: TextInputType.text,
                       obscureText: _secureText,
+                      keyboardType: TextInputType.visiblePassword,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         focusedBorder: OutlineInputBorder(
@@ -322,16 +322,16 @@ Padding(
                           borderSide: BorderSide(color: Colors.brown),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        labelText: "Password",
-                        labelStyle: TextStyle(color: Colors.black),
                         suffixIcon: IconButton(
+                          icon: Icon(_secureText ? Icons.visibility_off : Icons.visibility),
                           onPressed: () {
                             setState(() {
                               _secureText = !_secureText;
                             });
                           },
-                          icon: Icon(_secureText ? Icons.visibility_off : Icons.visibility, size: 22),
                         ),
+                        labelText: "Password",
+                        labelStyle: TextStyle(color: Colors.black),
                       ),
                       validator: (value) {
                         if (value!.isEmpty) {
@@ -350,8 +350,8 @@ Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: TextFormField(
                       controller: _confirmPasswordController,
-                      keyboardType: TextInputType.text,
                       obscureText: _secureTextConfirm,
+                      keyboardType: TextInputType.visiblePassword,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         focusedBorder: OutlineInputBorder(
@@ -362,16 +362,16 @@ Padding(
                           borderSide: BorderSide(color: Colors.brown),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        labelText: "Confirm Password",
-                        labelStyle: TextStyle(color: Colors.black),
                         suffixIcon: IconButton(
+                          icon: Icon(_secureTextConfirm ? Icons.visibility_off : Icons.visibility),
                           onPressed: () {
                             setState(() {
                               _secureTextConfirm = !_secureTextConfirm;
                             });
                           },
-                          icon: Icon(_secureTextConfirm ? Icons.visibility_off : Icons.visibility, size: 22),
                         ),
+                        labelText: "Confirm Password",
+                        labelStyle: TextStyle(color: Colors.black),
                       ),
                       validator: (value) {
                         if (value!.isEmpty) {
@@ -401,8 +401,10 @@ Padding(
                         labelText: "User Type",
                         labelStyle: TextStyle(color: Colors.black),
                       ),
-                      items: <String>['User', 'Worker']
-                          .map<DropdownMenuItem<String>>((String value) {
+                      items: <String>[
+                        'User',
+                        'Worker',
+                      ].map<DropdownMenuItem<String>>((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
                           child: Text(value),
@@ -431,29 +433,40 @@ Padding(
                           borderSide: BorderSide(color: Colors.brown),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        labelText: "Job (only worker)",
+                        suffixIcon: Icon(Icons.work),
+                        labelText: "Job",
                         labelStyle: TextStyle(color: Colors.black),
                       ),
+                      validator: (value) {
+                        if (_userType == 'Worker' && value!.isEmpty) {
+                          return 'Please enter your job title';
+                        }
+                        return null;
+                      },
                     ),
                   ),
-                  SizedBox(height: 30),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 3),
-                    child: GestureDetector(
-                      child: Container(
-                        child: MaterialButton(
-                          padding: EdgeInsets.symmetric(vertical: 15),
-                          minWidth: 150,
-                          shape: StadiumBorder(),
-                          color: Colors.purple,
-                          textColor: Colors.black,
-                          onPressed: () {
-                            _insertUser();
-                            Navigator.of(context).pushReplacementNamed('LoginScreen');
-                          },
-                          child: Text("Sign in"),
-                        ),
-                      ),
+                  SizedBox(height: 15),
+ElevatedButton(
+  onPressed: () {
+    _insertUser();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+    );
+  },
+  child: Text('Register'),
+),
+                  SizedBox(height: 15),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginScreen()),
+                      );
+                    },
+                    child: Text(
+                      "Already have an account? Login",
+                      style: TextStyle(color: Colors.black),
                     ),
                   ),
                 ],

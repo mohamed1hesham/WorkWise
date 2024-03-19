@@ -13,7 +13,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             checkUser();
             break;
         case 'CHECK_PHONE_NUMBER':
-            checkPhoneNumber();
+            checkPhoneNumber(); // هنا نقوم بتضمين الدالة الجديدة
+            break;
+        case 'GET_USER_INFO': // إضافة العملية للحصول على معلومات المستخدم
+            getUserInfo();
             break;
         default:
             echo json_encode(array("status" => "failure", "error" => "Invalid action"));
@@ -51,11 +54,12 @@ function insertUser() {
 
     // Check if phone number already exists
     $phoneNumber = $_POST["phone_number"];
-    $existingNationalId = checkPhoneNumber($phoneNumber);
+    $existingNationalId = checkPhoneNumber($phoneNumber); // تم استدعاء الدالة مع رقم الهاتف
 
     if ($existingNationalId !== null) {
-        echo "Phone number already exists for user with national ID: $existingNationalId";
-        return;
+        echo json_encode(array("status" => "failure", "error" => "Phone number already exists for user with national ID: $existingNationalId"));
+    } else {
+        echo json_encode(array("status" => "success", "message" => "Phone number is available for registration"));
     }
 
     $firstName = $_POST["first_name"];
@@ -111,6 +115,7 @@ function checkUser() {
     $conn->close();
 }
 
+// هنا نقوم بنقل الدالة المستدعاة checkPhoneNumber من الصفحة الجديدة ووضعها هنا
 function checkPhoneNumber() {
     $servername = "localhost";
     $username = "id21923587_users";
@@ -147,4 +152,43 @@ function checkPhoneNumber() {
     $conn->close();
 }
 
+function getUserInfo() {
+    $servername = "localhost";
+    $username = "id21923587_users";
+    $password = "123Mm@#8";
+    $dbname = "id21923587_user_database";
+    $table = "users";
+
+    $conn = new mysqli($servername, $username, $password, $dbname);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    $nationalId = $_POST["national_id"];
+    $idNumber = $_POST["id_number"];
+    $sql = "SELECT * FROM $table WHERE national_id='$nationalId' AND id_number='$idNumber'";
+    $result = $conn->query($sql);
+
+    if ($result->num_rows > 0) {
+        // المستخدم موجود في نفس الصف
+        $row = $result->fetch_assoc();
+        // إرجاع بيانات المستخدم كـ JSON
+        echo json_encode(array(
+            "status" => "success",
+            "user_info" => $row
+        ));
+    } else {
+        // المستخدم غير موجود أو كلمة المرور غير صحيحة
+        echo json_encode(array(
+            "status" => "failure",
+            "error" => "User not found or invalid credentials"
+        ));
+    }
+
+    $conn->close();
+}
+
+
+
 ?>
+

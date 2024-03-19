@@ -4,7 +4,7 @@ import 'package:flutter_application_1/tast/user.dart';
 import 'package:flutter_application_1/tast/forgetPassword.dart';
 import '../model/server_user.dart';
 
-final _formKey = GlobalKey<FormState>();
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -17,6 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _secureText = true;
   final _nationalIDController = TextEditingController();
   final _passwordController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   void openHomeScreen() {
     Navigator.of(context).pushReplacementNamed('HomeScreen');
@@ -85,8 +86,9 @@ void login() {
                   children: [
                     SizedBox(height: 50),
                     Image.asset(
-                      'images/hard-work.png',
-                      height: 150,
+                      'images/logo.png',
+                      height: 240,
+                      fit: BoxFit.contain,
                     ),
                     SizedBox(height: 20),
                     Text(

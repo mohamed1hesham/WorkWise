@@ -7,6 +7,7 @@ class ServerUserAPI {
   static const String INSERT_USER_ACTION = 'INSERT_USER';
   static const String CHECK_USER_ACTION = 'CHECK_USER';
   static const String CHECK_PHONE_NUMBER_ACTION = 'CHECK_PHONE_NUMBER';
+  static const String GET_USER_INFO_ACTION = 'GET_USER_INFO'; 
 
   static Future<String> insertUser(
     String firstName,
@@ -94,4 +95,29 @@ static Future<Map<String, dynamic>> checkPhoneNumber(String idNumber, String nat
   }
 }
 
+static Future<Map<String, dynamic>> getUserInfo(String nationalId, String idNumber) async {
+  try {
+    var map = {
+      'action': GET_USER_INFO_ACTION,
+      'national_id': nationalId,
+      'id_number': idNumber,
+    };
+    final response = await http.post(Uri.parse(API_URL), body: map);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = json.decode(response.body);
+      if (data['status'] == 'success') {
+        return {'status': 'success', 'user_info': data['user_info']};
+      } else {
+        return {'status': 'failed'};
+      }
+    } else {
+      return {'status': 'failed'};
+    }
+  } catch (e) {
+    if (kDebugMode) {
+      print('Error: $e');
+    }
+    return {'status': 'error'};
+  }
+}
 }

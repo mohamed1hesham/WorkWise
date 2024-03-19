@@ -53,11 +53,11 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Forget Password"), // عنوان الصفحة
+        title: Text("Forget Password"), 
         leading: IconButton(
-          icon: Icon(Icons.arrow_back), // أيقونة العودة
+          icon: Icon(Icons.arrow_back), 
           onPressed: () {
-            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginScreen())); // فتح صفحة تسجيل الدخول
+            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginScreen())); 
           },
         ),
       ),
@@ -79,7 +79,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                     SizedBox(height: 5),
                     Image.asset('images/hard-work.png', height: constraints.maxHeight * 0.2),
                     SizedBox(height: constraints.maxHeight * 0.1),
-                    // Phone Number TextField
+                    
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: constraints.maxWidth * 0.05),
                       child: TextField(
@@ -103,7 +103,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                       ),
                     ),
                     SizedBox(height: constraints.maxHeight * 0.05),
-                    // National ID TextField
+                    
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: constraints.maxWidth * 0.05),
                       child: TextField(
@@ -128,7 +128,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                       ),
                     ),
                     SizedBox(height: constraints.maxHeight * 0.1),
-                    // Password TextField
+                    
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: constraints.maxWidth * 0.05),
                       child: TextFormField(
@@ -159,7 +159,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                       ),
                     ),
                     SizedBox(height: constraints.maxHeight * 0.05),
-                    // Confirm Password TextField
+                    
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: constraints.maxWidth * 0.05),
                       child: TextFormField(
@@ -190,7 +190,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                       ),
                     ),
                     SizedBox(height: constraints.maxHeight * 0.1),
-                    // Change Password Button
+                    
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: constraints.maxWidth * 0.02),
                       child: GestureDetector(
@@ -203,7 +203,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                             textColor: Colors.black,
                             onPressed: () {
                               _handleChangePasswordButtonPressed();
-                              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginScreen()));
+                              
                             },
                             child: Text("Change Password"),
                           ),
@@ -230,11 +230,11 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
     if (result['status'] == 'success') {
       String retrievedPassword = result['password'];
       setState(() {
-        widget.passwordController.text = retrievedPassword; // تحديث كلمة المرور المعروضة
+        widget.passwordController.text = retrievedPassword; 
       });
     } else {
       setState(() {
-        // عرض مربع الحوار برسالة الخطأ
+        
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -259,42 +259,54 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
   @override
   void initState() {
     super.initState();
-    // عرض مربع الحوار بنجاح العملية عند فتح الصفحة
+    
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       _showSuccessDialog();
     });
   }
 
-  void _showSuccessDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Success"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Operation Successful",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8),
-              Text(
-                "When your information is complete and you press the change password button, if you do not see an error message, know that the process was completed successfully.",
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("OK"),
+void _showSuccessDialog() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("Success"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Operation Successful",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "When your information is complete and you press the change password button, if you do not see an error message, know that the process was completed successfully.",
+                  style: TextStyle(color: Colors.black),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  "عندما تكون معلوماتك كاملة وتضغط على زر تغيير كلمة المرور، إذا لم تظهر رسالة خطأ، فاعلم أن العملية تمت بنجاح.",
+                  style: TextStyle(color: Colors.black),
+                ),
+              ],
             ),
           ],
-        );
-      },
-    );
-  }
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text("OK"),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 }
